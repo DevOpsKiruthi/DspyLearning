@@ -8,21 +8,23 @@ from config import azure_llm
 # Configure DSPy to use the Azure LLM
 dspy.settings.configure(lm=azure_llm)
 
+class SubSkill(Basemodel):
+    name : str
+    experience : int
+    topics : List[arr]
+
+class Skill(Basemodel):
+    objective: str
+    skills : List[SubSkill]
+
 class SkillsGenerationSignature(dspy.Signature):
     """Generate a comprehensive skills profile as a JSON string"""
     job_description: str = dspy.InputField(desc="Detailed job description")
     years_of_experience: int = dspy.InputField(desc="Total years of professional experience")
     
     # Output Field specifying the exact JSON structure
-    skills_output: str = dspy.OutputField(
-        desc="Strict JSON string with this exact structure: "
-             '{"objective": "Career objective as a clear, concise string", '
-             '"skills": [{'
-             '   "name": "Skill Name", '
-             '   "experience": "X years", '
-             '   "topics": ["Topic 1", "Topic 2"]'
-             '}]}'
-    )
+    skills_output: Skill = dspy.OutputField(
+        desc="I want a resume skills in the expected format"  )
 
 class SkillsGenerator(dspy.Module):
     def __init__(self, max_retries=3):

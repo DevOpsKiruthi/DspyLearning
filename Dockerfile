@@ -23,3 +23,4 @@ USER vscodeuser
 EXPOSE 8080
 
 # Start code-server on container start
+CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "none"]
