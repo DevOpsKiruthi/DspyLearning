@@ -8,46 +8,48 @@ from config import azure_llm
 # Configure DSPy to use the Azure LLM
 dspy.settings.configure(lm=azure_llm)
 
-class SubSkill(BaseModel):
+class AIReview(BaseModel):
+    strengths: List[str]
+    weaknesses: List[str]
+    fit_score: int
+    comments: str
+
+class CandidateEvaluation(BaseModel):
     name: str
-    experience: int
-    topics: List[str]
+    selected: bool
+    not_selected: bool
+    ai_review: AIReview
 
-class Skill(BaseModel):
-    objective: str
-    skills: List[SubSkill]
-
-class SkillsGenerationSignature(dspy.Signature):
-    """Generate a comprehensive skills profile as a JSON string"""
-    job_description: str = dspy.InputField(desc="Detailed job description")
-    years_of_experience: int = dspy.InputField(desc="Total years of professional experience")
+class ResumeEvaluationSignature(dspy.Signature):
+    """Evaluate candidate resume against job description with additional expectations"""
+    resume: str = dspy.InputField(desc="Candidate's full resume text")
+    job_description: str = dspy.InputField(desc="Complete job description")
+    what_we_are_expecting: str = dspy.InputField(desc="Additional comments or expectations for the role")
     
-    # Output Field using the Pydantic model directly
-    skills_output: Skill = dspy.OutputField(
-        desc="Skills in the correct format with 'objective' and 'skills' fields"
+    # Output field using the Pydantic model
+    evaluation: CandidateEvaluation = dspy.OutputField(
+        desc="Evaluation including candidate's name extracted from resume, selection decision (either selected=True or not_selected=True), and detailed AI review with strengths, weaknesses, fit score, and comments"
     )
 
+# Create the evaluator using dspy with ChainOfThought to expose reasoning
+resume_evaluator = dspy.ChainOfThought(ResumeEvaluationSignature)
+
 def main():
-    # Example job descriptions with varying complexity
-    job_descriptions = [
-        "Senior Software Developer role requiring cloud and DevOps expertise",
-        "Data Scientist position focusing on machine learning and AI analytics",
-        "Product Management role for strategic technology products"
-    ]
+    # Get inputs from command line or other source in a real application
+    resume = input("Enter resume text: ")
+    job_description = input("Enter job description: ")
+    expectations = input("Enter additional expectations: ")
     
-    # Corresponding experience levels
-    experience_levels = [3, 5, 7]
+    # Generate evaluation with reasoning
+    result = resume_evaluator(
+        resume=resume,
+        job_description=job_description,
+        what_we_are_expecting=expectations
+    )
     
-    # Create the predictor using dspy.Predict
-    resume_generator = dspy.Predict(SkillsGenerationSignature)
-    
-    for job_desc, exp in zip(job_descriptions, experience_levels):
-        # Generate skills profile 
-        result = resume_generator(job_description=job_desc, years_of_experience=exp)
-        
-        # Access and print the skills data
-        skills_profile = result.skills_output
-        print(skills_profile.model_dump_json(indent=2))
+    # Print the structured output
+    evaluation = result.evaluation
+    print(evaluation.model_dump_json(indent=2))
 
 if __name__ == "__main__":
     main()
