@@ -5,6 +5,8 @@ import subprocess
 import traceback
 from typing import List
 from pydantic import BaseModel
+import fitz  # PyMuPDF
+from datetime import datetime
 
 # Import Azure LLM configuration from config
 from config import azure_llm
@@ -38,89 +40,73 @@ class PDFProcessor:
     @staticmethod
     def extract_text(pdf_path: str) -> str:
         """Robust PDF text extraction with multiple fallbacks"""
-        methods = [
-            PDFProcessor._extract_with_pdftotext,
-            PDFProcessor._extract_with_pymupdf,
-            PDFProcessor._extract_with_pypdf2,
-            PDFProcessor._extract_with_pdfplumber,
-            PDFProcessor._extract_with_ocr
-        ]
-        
-        for method in methods:
-            try:
-                text = method(pdf_path)
-                if text and len(text.strip()) > 100:  # Minimum viable content
-                    return text.strip()
-            except Exception as e:
-                print(f"Method {method.__name__} failed: {str(e)}")
-                continue
-        
-        return ""
-
-    @staticmethod
-    def _extract_with_pdftotext(pdf_path: str) -> str:
-        """System command (most reliable)"""
         try:
-            result = subprocess.run(
-                ['pdftotext', pdf_path, '-'],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            return result.stdout
+            # Normalize path for cross-platform compatibility
+            pdf_path = os.path.normpath(pdf_path)
+            
+            if not os.path.exists(pdf_path):
+                print(f"File not found: {pdf_path}")
+                return ""
+            
+            # Try PyMuPDF first
+            text = PDFProcessor._extract_with_pymupdf(pdf_path)
+            if text and len(text.strip()) > 100:
+                return text.strip()
+            
+            # Fallback methods
+            methods = [
+                PDFProcessor._extract_with_pypdf2,
+                PDFProcessor._extract_with_pdfplumber,
+                PDFProcessor._extract_with_ocr
+            ]
+            
+            for method in methods:
+                try:
+                    text = method(pdf_path)
+                    if text and len(text.strip()) > 100:
+                        return text.strip()
+                except Exception:
+                    continue
+            
+            return ""
+            
         except Exception as e:
-            print(f"pdftotext failed: {e}")
+            print(f"Error during text extraction: {str(e)}")
+            traceback.print_exc()
             return ""
 
     @staticmethod
     def _extract_with_pymupdf(pdf_path: str) -> str:
         """PyMuPDF implementation"""
-        try:
-            import fitz
-            with fitz.open(pdf_path) as doc:
-                if doc.is_encrypted and not doc.authenticate(""):
-                    return ""
-                return "\n".join(page.get_text() for page in doc)
-        except Exception as e:
-            print(f"PyMuPDF failed: {e}")
-            return ""
+        with fitz.open(pdf_path) as doc:
+            if doc.is_encrypted and not doc.authenticate(""):
+                return ""
+            return "\n".join(page.get_text() for page in doc)
 
     @staticmethod
     def _extract_with_pypdf2(pdf_path: str) -> str:
         """PyPDF2 implementation"""
-        try:
-            from PyPDF2 import PdfReader
-            with open(pdf_path, 'rb') as f:
-                reader = PdfReader(f)
-                return "\n".join(page.extract_text() or "" for page in reader.pages)
-        except Exception as e:
-            print(f"PyPDF2 failed: {e}")
-            return ""
+        from PyPDF2 import PdfReader
+        with open(pdf_path, 'rb') as f:
+            reader = PdfReader(f)
+            return "\n".join(page.extract_text() or "" for page in reader.pages)
 
     @staticmethod
     def _extract_with_pdfplumber(pdf_path: str) -> str:
         """pdfplumber implementation"""
-        try:
-            import pdfplumber
-            with pdfplumber.open(pdf_path) as pdf:
-                return "\n".join(page.extract_text() or "" for page in pdf.pages)
-        except Exception as e:
-            print(f"pdfplumber failed: {e}")
-            return ""
+        import pdfplumber
+        with pdfplumber.open(pdf_path) as pdf:
+            return "\n".join(page.extract_text() or "" for page in pdf.pages)
 
     @staticmethod
     def _extract_with_ocr(pdf_path: str) -> str:
         """OCR fallback for image-based PDFs"""
-        try:
-            from pdf2image import convert_from_path
-            import pytesseract
-            images = convert_from_path(pdf_path)
-            return "\n".join(pytesseract.image_to_string(img) for img in images)
-        except Exception as e:
-            print(f"OCR failed: {e}")
-            return ""
+        from pdf2image import convert_from_path
+        import pytesseract
+        images = convert_from_path(pdf_path)
+        return "\n".join(pytesseract.image_to_string(img) for img in images)
 
-def get_interactive_input(prompt: str) -> str:
+def get_multiline_input(prompt: str) -> str:
     """Collect multi-line input from user"""
     print(prompt)
     lines = []
@@ -141,13 +127,25 @@ def main():
     print("=" * 40)
     
     # Get resume path
-    pdf_path = input("Enter path to resume PDF: ").strip()
+    while True:
+        pdf_path = input("Enter path to resume PDF (or drag file here): ").strip('"\' ')
+        if not pdf_path:
+            print("Please provide a file path.")
+            continue
+            
+        pdf_path = os.path.normpath(pdf_path)
+        if os.path.exists(pdf_path):
+            break
+        print(f"File not found: {pdf_path}")
+        print("Available files in current directory:")
+        print("\n".join(f for f in os.listdir() if f.lower().endswith('.pdf')))
+    
+    # Extract text
     print("\nExtracting text...")
     resume_text = PDFProcessor.extract_text(pdf_path)
     
     if not resume_text:
         print("\nERROR: Failed to extract text. Possible issues:")
-        print("- File doesn't exist or path is incorrect")
         print("- PDF is image-based/scanned (needs OCR)")
         print("- PDF is password protected")
         print("- PDF is corrupted")
@@ -156,16 +154,17 @@ def main():
     
     # Save extracted text
     base_name = os.path.splitext(os.path.basename(pdf_path))[0]
-    with open(f"{base_name}_extracted.txt", 'w', encoding='utf-8') as f:
+    txt_path = f"{base_name}_extracted.txt"
+    with open(txt_path, 'w', encoding='utf-8') as f:
         f.write(resume_text)
-    print(f"Extracted text saved to {base_name}_extracted.txt")
+    print(f"Extracted text saved to: {txt_path}")
     
     # Get job requirements
-    job_desc = get_interactive_input(
-        "\nEnter job description (empty line to finish):"
+    job_desc = get_multiline_input(
+        "\nEnter job description (press Enter twice to finish):"
     )
-    expectations = get_interactive_input(
-        "\nEnter additional expectations (empty line to finish):"
+    expectations = get_multiline_input(
+        "\nEnter additional expectations (press Enter twice to finish):"
     )
     
     if not all([resume_text, job_desc, expectations]):
@@ -188,9 +187,10 @@ def main():
     print(output)
     
     # Save JSON
-    with open(f"{base_name}_evaluation.json", 'w') as f:
+    json_path = f"{base_name}_evaluation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    with open(json_path, 'w') as f:
         f.write(output)
-    print(f"\nSaved to: {base_name}_evaluation.json")
+    print(f"\nResults saved to: {json_path}")
 
 if __name__ == "__main__":
     try:
