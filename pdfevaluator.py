@@ -50,7 +50,7 @@ def read_pdf(file_path):
 
 def main():
     # File path for resume
-    resume_file = "resume.pdf"
+    resume_file = "resume1.pdf"
     
     # Read resume from PDF file
     resume = read_pdf(resume_file)
