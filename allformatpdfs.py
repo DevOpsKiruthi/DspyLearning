@@ -37,9 +37,47 @@ class ResumeEvaluationSignature(dspy.Signature):
 # Create the evaluator using dspy with ChainOfThought to expose reasoning
 resume_evaluator = dspy.ChainOfThought(ResumeEvaluationSignature)
 
-def extract_text_with_pymupdf(file_path):
-    """Try to extract text directly from PDF using PyMuPDF"""
+def read_pdf_with_ocr(file_path):
+    """Convert PDF to images and extract text using OCR with improved configuration"""
     try:
+        from pdf2image import convert_from_path
+        import pytesseract
+        
+        print(f"Starting OCR processing for: {file_path}")
+        
+        # Convert PDF to images with higher DPI for better OCR results
+        pages = convert_from_path(file_path, dpi=300)
+        print(f"Converted PDF to {len(pages)} images")
+        
+        # Process each page with OCR
+        text = ""
+        for i, page in enumerate(pages):
+            print(f"Processing page {i+1} with OCR...")
+            # Use better OCR configuration
+            page_text = pytesseract.image_to_string(
+                page,
+                config='--psm 6'  # Assume a single uniform block of text
+            )
+            text += page_text + "\n"
+            print(f"Extracted {len(page_text)} characters from page {i+1}")
+            
+        print(f"Total OCR text extracted: {len(text)} characters")
+        return text
+    except ImportError as e:
+        print(f"OCR dependencies missing: {e}")
+        print("Please install with: pip install pdf2image pytesseract")
+        print("And system packages: sudo apt install poppler-utils tesseract-ocr")
+        return ""
+    except Exception as e:
+        print(f"OCR error: {e}")
+        traceback.print_exc()
+        return ""
+
+def read_pdf_with_pymupdf(file_path):
+    """Extract text directly from PDF using PyMuPDF"""
+    try:
+        import fitz  # PyMuPDF
+        
         print(f"Attempting direct text extraction with PyMuPDF: {file_path}")
         document = fitz.open(file_path)
         
@@ -64,54 +102,72 @@ def extract_text_with_pymupdf(file_path):
         # If we got minimal text, it might be a scanned PDF
         if len(text.strip()) < 100:
             print("Minimal text extracted, might be a scanned document")
-            return ""
             
-        print(f"Successfully extracted {len(text)} characters directly")
+        print(f"Successfully extracted {len(text)} characters with PyMuPDF")
         return text
         
+    except ImportError:
+        print("PyMuPDF not installed. Try 'pip install pymupdf'")
+        return ""
     except Exception as e:
         print(f"PyMuPDF error: {e}")
-        return ""
-
-def extract_text_with_ocr(file_path):
-    """Extract text using OCR (for scanned PDFs)"""
-    try:
-        # Import required libraries
-        from pdf2image import convert_from_path
-        import pytesseract
-        
-        print(f"Attempting OCR extraction: {file_path}")
-        
-        # Convert PDF to images
-        images = convert_from_path(file_path)
-        print(f"Converted PDF to {len(images)} images")
-        
-        # Process all images with OCR and join with newlines
-        text = "\n".join([pytesseract.image_to_string(img) for img in images])
-        
-        print(f"Extracted {len(text)} characters using OCR")
-        return text
-        
-    except Exception as e:
-        print(f"OCR error: {e}")
         traceback.print_exc()
         return ""
 
-def extract_text_from_pdf(file_path):
-    """Extract text from any PDF format using the most appropriate method"""
-    # First, try direct extraction (faster and usually better for native PDFs)
-    text = extract_text_with_pymupdf(file_path)
-    
-    # If direct extraction failed or returned minimal text, try OCR
-    if not text or len(text.strip()) < 100:
-        print("Direct extraction failed or returned minimal text, trying OCR...")
-        text = extract_text_with_ocr(file_path)
-    
-    # If we still have no text, we've failed
-    if not text:
-        print("Failed to extract text using any method")
-    
-    return text
+def read_pdf_with_pypdf2(file_path):
+    """Extract text using PyPDF2 as a fallback method"""
+    try:
+        import PyPDF2
+        
+        print(f"Attempting text extraction with PyPDF2: {file_path}")
+        with open(file_path, 'rb') as file:
+            reader = PyPDF2.PdfReader(file)
+            
+            # Check if encrypted
+            if reader.is_encrypted:
+                try:
+                    reader.decrypt('')
+                    print("Decrypted PDF with empty password")
+                except:
+                    print("Could not decrypt the PDF")
+                    return ""
+            
+            text = ""
+            for page_num in range(len(reader.pages)):
+                text += reader.pages[page_num].extract_text() or ""
+                
+        print(f"Extracted {len(text)} characters with PyPDF2")
+        return text
+        
+    except ImportError:
+        print("PyPDF2 not installed. Try 'pip install PyPDF2'")
+        return ""
+    except Exception as e:
+        print(f"PyPDF2 error: {e}")
+        traceback.print_exc()
+        return ""
+
+def read_pdf_with_pdfplumber(file_path):
+    """Extract text using pdfplumber as another fallback method"""
+    try:
+        import pdfplumber
+        
+        print(f"Attempting text extraction with pdfplumber: {file_path}")
+        with pdfplumber.open(file_path) as pdf:
+            text = ""
+            for page in pdf.pages:
+                text += page.extract_text() or ""
+                
+        print(f"Extracted {len(text)} characters with pdfplumber")
+        return text
+        
+    except ImportError:
+        print("pdfplumber not installed. Try 'pip install pdfplumber'")
+        return ""
+    except Exception as e:
+        print(f"pdfplumber error: {e}")
+        traceback.print_exc()
+        return ""
 
 def main():
     # Get resume file name via console input
@@ -123,18 +179,46 @@ def main():
         print(f"Error: The file '{resume_file}' does not exist. Please check the filename and try again.")
         return
     
-    # Extract text using the combined approach
+    # First, try OCR directly since we're prioritizing for scanned documents
+    print("Attempting OCR extraction first...")
+    resume = ""
     try:
-        resume = extract_text_from_pdf(resume_file)
+        resume = read_pdf_with_ocr(resume_file)
     except ImportError:
-        print("Required packages missing. Please install with:")
-        print("pip install pymupdf pytesseract pdf2image")
+        print("OCR dependencies not installed.")
+        print("Installing required packages for OCR...")
+        print("Please run the following commands:")
+        print("pip install pdf2image pytesseract")
         print("For Linux: sudo apt install poppler-utils tesseract-ocr")
-        return
+    
+    # If OCR failed or returned minimal text, try other methods
+    if not resume or len(resume.strip()) < 100:
+        print("OCR extraction failed or returned minimal text. Trying standard methods...")
+        
+        # Try PyMuPDF first as it's usually more reliable
+        resume = read_pdf_with_pymupdf(resume_file)
+        
+        if not resume or len(resume.strip()) < 100:
+            print("PyMuPDF extraction failed or returned minimal text. Trying PyPDF2...")
+            try:
+                resume = read_pdf_with_pypdf2(resume_file)
+            except ImportError:
+                print("PyPDF2 not installed. Try 'pip install PyPDF2'")
+        
+        if not resume or len(resume.strip()) < 100:
+            print("PyPDF2 extraction failed or returned minimal text. Trying pdfplumber...")
+            try:
+                resume = read_pdf_with_pdfplumber(resume_file)
+            except ImportError:
+                print("pdfplumber not installed. Try 'pip install pdfplumber'")
     
     if not resume:
-        print("Could not extract text from the PDF. Please ensure all dependencies are installed correctly.")
+        print("Could not extract text from the PDF using any available method.")
         return
+    
+    if len(resume.strip()) < 100:
+        print("Warning: Extracted text is very short. This may indicate a poor quality scan or image-based PDF.")
+        print(f"Only extracted {len(resume.strip())} characters.")
     
     # Save extracted text for debugging
     with open(f"{os.path.splitext(resume_file)[0]}_extracted.txt", "w", encoding="utf-8") as f:
@@ -168,23 +252,14 @@ def main():
     print("\nProcessing evaluation...")
     
     # Generate evaluation with reasoning
-    result = resume_evaluator(
-        resume=resume,
-        job_description=job_description,
-        what_we_are_expecting=expectations
-    )
-    
-    # Print the structured output
-    evaluation = result.evaluation
-    output = evaluation.model_dump_json(indent=2)
-    print("\nEvaluation Result:")
-    print(output)
-    
-    # Save the output to a JSON file
-    output_filename = f"evaluation_result_{os.path.splitext(os.path.basename(resume_file))[0]}.json"
-    with open(output_filename, "w") as f:
-        f.write(output)
-    print(f"\nEvaluation saved to {output_filename}")
-
-if __name__ == "__main__":
-    main()
+    try:
+        result = resume_evaluator(
+            resume=resume,
+            job_description=job_description,
+            what_we_are_expecting=expectations
+        )
+        
+        # Print the structured output
+        evaluation = result.evaluation
+        output = evaluation.model_dump_json(indent=2)
+        print
