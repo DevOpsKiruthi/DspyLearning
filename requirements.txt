@@ -103,3 +103,9 @@ watchdog==6.0.0
 xxhash==3.5.0
 yarl==1.18.3
 zipp==3.21.0
+azure-core==1.32.0
+pdf2image==1.17.0
+pytesseract==0.3.13
+
+# poppler-utils is a system dependency required for PDF processing (pdf2image)
+# Please install manually using: sudo apt install poppler-utils
