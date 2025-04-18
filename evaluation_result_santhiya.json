@@ -1,0 +1,14 @@
+{
+  "name": "Unknown",
+  "selected": false,
+  "not_selected": true,
+  "ai_review": {
+    "strengths": [],
+    "weaknesses": [
+      "No resume provided",
+      "Job description and expectations are not detailed"
+    ],
+    "fit_score": 0,
+    "comments": "The evaluation could not be completed due to the lack of information in the resume and job description fields. Please provide detailed inputs for a proper assessment."
+  }
+}
