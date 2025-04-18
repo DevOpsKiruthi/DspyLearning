@@ -18,8 +18,8 @@ st.set_page_config(page_title="Resume Evaluator AI", layout="centered")
 
 # Dummy users (username: password)
 users = {
-    "admin": "admin123",
-    "demo": "demo123"
+    "admin": "#6bwBcoe&ZuxH4dH38d",
+    "demo": "#6bwBcoe&ZuxH4dH38d"
 }
 
 def login():
