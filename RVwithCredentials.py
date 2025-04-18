@@ -9,6 +9,9 @@ from pdf2image import convert_from_path
 import pytesseract
 from config import azure_llm  # Make sure this file/config exists and is correct
 
+# ✅ SET THIS IMMEDIATELY AFTER IMPORTS
+st.set_page_config(page_title="Resume Evaluator AI", layout="centered")
+
 # -----------------------
 # 1. USER LOGIN AUTH
 # -----------------------
