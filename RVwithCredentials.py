@@ -86,7 +86,6 @@ def extract_text_from_pdf(file_path):
         return ""
 
 # Streamlit UI
-st.set_page_config(page_title="Resume Evaluator AI", layout="centered")
 st.title("🤖 AI Resume Evaluator")
 st.write("Upload a candidate resume and evaluate it against a job description.")
 
