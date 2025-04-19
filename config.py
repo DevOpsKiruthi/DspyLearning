@@ -11,6 +11,8 @@ azure_llm = dspy.LM(
     api_key=os.getenv("AZURE_OPENAI_API_KEY"),
     temperature=0.1,
     max_tokens=4000,
+    azure=True  # This is crucial for Azure OpenAI
+
 )
 
 print(azure_llm("hello, whos this"))
