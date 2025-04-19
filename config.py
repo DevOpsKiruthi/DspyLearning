@@ -14,5 +14,5 @@ azure_llm = dspy.LM(
     azure=True  # This is crucial for Azure OpenAI
 
 )
-print("AZURE_OPENAI_MODEL_NAME:", os.getenv("AZURE_OPENAI_MODEL_NAME"))
+print("AZURE_OPENAI_MODEL:", os.getenv("AZURE_OPENAI_MODEL"))
 print(azure_llm("hello, whos this"))
