@@ -1,0 +1,20 @@
+{
+  "name": "Not explicitly mentioned in resume",
+  "selected": false,
+  "not_selected": true,
+  "ai_review": {
+    "strengths": [
+      "Extensive experience with AWS and GCP cloud platforms.",
+      "Strong expertise in Kubernetes, Terraform, and CI/CD pipelines.",
+      "Proven ability to design and architect secure cloud infrastructure.",
+      "Experience with system migrations and cloud security."
+    ],
+    "weaknesses": [
+      "No explicit mention of experience with high-throughput systems.",
+      "No evidence of contributions to open-source projects or technical communities.",
+      "Limited information on collaboration with product managers or cross-functional teams."
+    ],
+    "fit_score": 7,
+    "comments": "The candidate has strong technical expertise in cloud infrastructure and related tools, making them a good fit for the technical aspects of the role. However, the lack of explicit experience with high-throughput systems, open-source contributions, and collaboration with product managers reduces their overall fit for the position."
+  }
+}

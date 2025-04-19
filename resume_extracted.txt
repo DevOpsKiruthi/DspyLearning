@@ -1,0 +1,183 @@
+Certifiied AWS solution architect with several years of
+cloud experience. Design several projects from the
+ground to the production on GCP and AWS clouds.
+Drive secure infrastructure architecture to meet
+product requirements.
+EXPERIENCE
+ClearScale, Remote — Cloud Architect/Systems Lead.
+August 2022
+●
+Build multi-accounts AWS organization
+●
+Build secure CI/CD pipelines on GitHub actions with
+self-hosted runners.
+●
+Build a road map for the infrastructure.
+●
+Prepare statement for work
+●
+Design and architect AWS infrastructure
+●
+Create to cloud migration roadmap.
+●
+AWS Well Architected Framework.
+Clim8, Remote — Lead Platform Engineer.
+June 2021 - August 2022
+●
+Build multi-accounts AWS organization
+●
+Build secure CI/CD pipelines on GitHub actions with
+self-hosted runners.
+●
+Build a road map for the infrastructure.
+●
+Advocate security in depth.
+Fondy, Remote — Lead platform engineer
+August 2020 - June 2021
+●
+GCP cloud security
+●
+IAM management
+●
+Kubernetes (GKE)
+●
+AWS Security
+SKILLS
+Skilled engineer in the area of 
+cloud. Mainly GCP and AWS.
+Skilled security engineer in the 
+area of Kubernetes, AWS, and GCP.
+Skilled Kubernetes engineer.
+Skilled developer in python and 
+go. Over seven years of
+experience in building automated
+tools for production
+environments.
+Skilled in various tooling like 
+Terraform, Consul, Vault, Flux, 
+Jenkins
+LANGUAGES
+English - C1, Polish - native, 
+German - B2
+Hobbies
+skiing, motorbiking, cycling, 
+running, swimming
+●
+Technologies: Red Hat, Python, Terraform, GCP, AWS, GKE,
+Kubernetes
+Tradeshift, Remote — Platform security engineer
+March 2018 - August 2020
+●
+AWS cloud security
+●
+GCP Cloud
+●
+IAM management
+●
+HIDS
+●
+OpenVas
+●
+AWS SecurityHub
+●
+AWS Inspector
+●
+Kubernetes Security - Kubebench, Kubehunter.
+●
+Terraform
+●
+GitOps
+●
+Hashicorp Vault, Consul
+Grid Dynamics, Krakow — DevOps Engineer.
+October 2017 - August 2018
+●
+Migrate on-premises infrastructure to the cloud.
+●
+Technologies: Red Hat, Python, Terraform, AWS,
+CloudFormation, Google Cloud, Packer, Inspec, OpenShift,
+Go
+Sabre, Krakow — Performance Engineer.
+September 2016 - September 2017
+●
+Assess performance risk: identify critical use cases.
+●
+Execute performance test with various load drivers:
+Jmeter, internal load drivers.
+●
+Work with dev teams to incorporate new applications into
+pLab environment: test harness tools
+●
+Technologies: Red Hat, Jenkins, Docker, Nomad, Consul,
+Puppet, Ansible, Python, VMware, Elasticsearch, Zabbix,
+JVM, Java, Perl.
+Epam, Zurich — Technical Solution Engineer at
+Google.
+May 2015 - August 2016
+●
+2nd and 3rd line of customer support. Network and product
+troubleshooting. Extensive exposure to network issues
+diagnosed with Wireshark and tcpdump.
+●
+94% consults solved within SLA.
+●
+75% initial consult closed without need to consult once
+again.
+●
+Improve har_analyzer tool by adding filtering feature.
+●
+Over 100 bugs filed.
+●
+Technologies: JavaScript, Closure, Borg, Microservices,
+Python.
+Sabre, Krakow — System Owner
+April 2013 - May 2015
+●
+Maintenance environment of ~2k boxes with average 20 tps
+per each.
+●
+Ensure availability above 99.6%.
+●
+Keep track on product changes. Prepare implementation
+steps. About 200 changes approved and implemented .
+●
+Decisive do or don’t push/rollback change to prod.
+●
+Performance tests (JMeter, Python). Hardware prediction.
+●
+F5 management - load balancing methods, tests,
+recommendation, implementation.
+●
+Highly efficient scripts to collect data for business purposes.
+●
+Technologies: RedHat, Perl, F5, Zabbix, Elastic Search,
+Python, Kibana.
+Alior Bank, Krakow — Expert it
+June 2008 - March 2013
+●
+Build central system from scratch.
+●
+Keep availability above 99% from 1st to 1M customer
+●
+Build from scratch web service client in MUMPS.
+●
+Create tool delegating user management to business team.
+●
+Promoted from IT Specialist to Expert IT.
+●
+Build monitoring system based on Nagios.
+●
+Technologies: Nagios, RedHat, VMware, PostgreSql, Perl,
+Python.
+EDUCATION
+Jagielonian University, Krakow — Master
+October 2010 - May 2012
+Applied Computer Sciencefifi
+AGH University of Science and Technology, Krakow —
+Bachelor
+October 2004 - May 2008
+Applied computer Science
+CERTIFICATES
+Google Cloud Certiﬁed - Professional Cloud Architect. 
+AWS Solution Architect Professional
+AWS Certiﬁed Security Speciality
