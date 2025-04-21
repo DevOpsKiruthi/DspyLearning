@@ -162,18 +162,17 @@ with col1:
         )
         
         st.plotly_chart(fig, use_container_width=True)
-        
         # Current price
-        if not gold_data.empty:
-            current_price = gold_data['Close'].iloc[-1]
-            st.metric(
-                "Current GLD Price", 
-                f"${current_price:.2f}", 
-                f"{(gold_data['Close'].iloc[-1] - gold_data['Close'].iloc[-2]):.2f} ({(gold_data['Close'].iloc[-1] / gold_data['Close'].iloc[-2] - 1) * 100:.2f}%)"
-            )
-    else:
-        st.error("Failed to fetch gold price data. Please try again later.")
-        current_price = None
+       if not gold_data.empty:
+    current_price = float(gold_data['Close'].iloc[-1])  # Convert to float explicitly
+    price_change = float(gold_data['Close'].iloc[-1] - gold_data['Close'].iloc[-2])
+    percent_change = (gold_data['Close'].iloc[-1] / gold_data['Close'].iloc[-2] - 1) * 100
+    
+    st.metric(
+        "Current GLD Price", 
+        f"${current_price:.2f}", 
+        f"{price_change:.2f} ({percent_change:.2f}%)"
+    )
 
 with col2:
     st.subheader("🔮 Predict Next Price Range")
