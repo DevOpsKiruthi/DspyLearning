@@ -180,8 +180,6 @@ with col1:
 
         st.plotly_chart(fig, use_container_width=True)
 
-        # Replace the current price calculation section with this fully fixed version:
-
         # Current price
         if not gold_data.empty:
             current_price = float(
@@ -231,17 +229,17 @@ with col2:
                 try:
                     # Prepare historical data summary
                     if not gold_data.empty:
-                        recent_trend = f"Past {historical_days} days: Low=${gold_data['Low'].min():.2f}, High=${gold_data['High'].max():.2f}, Avg=${gold_data['Close'].mean():.2f}"
-                        month_change = (
-                            (
-                                gold_data["Close"].iloc[-1]
-                                / gold_data["Close"].iloc[-30]
-                                - 1
-                            )
-                            * 100
-                            if len(gold_data) >= 30
-                            else 0
-                        )
+                        min_low = float(gold_data['Low'].min())
+                        max_high = float(gold_data['High'].max())
+                        mean_close = float(gold_data['Close'].mean())
+                        
+                        recent_trend = f"Past {historical_days} days: Low=${min_low:.2f}, High=${max_high:.2f}, Avg=${mean_close:.2f}"
+                        
+                        if len(gold_data) >= 30:
+                            month_change = float((gold_data["Close"].iloc[-1] / gold_data["Close"].iloc[-30] - 1) * 100)
+                        else:
+                            month_change = 0.0
+                        
                         recent_trend += f", 30-day change: {month_change:.2f}%"
                     else:
                         recent_trend = "No historical data available"
