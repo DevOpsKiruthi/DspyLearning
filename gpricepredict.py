@@ -51,17 +51,14 @@ else:
 # 2. GOLD PRICE PREDICTOR
 # -----------------------
 
-# Replace this line:
-dspy.settings.configure(lm=azure_llm)
 
-# With this code:
 if 'dspy_configured' not in st.session_state:
     try:
         dspy.settings.configure(lm=azure_llm)
-        st.session_state['dspy_configured'] = True
-    except RuntimeError as e:
-        # Already configured, just ignore
-        st.session_state['dspy_configured'] = True
+    except RuntimeError:
+        pass  # Ignore the error
+    st.session_state['dspy_configured'] = True
+
 
 # Pydantic models for structured prediction output
 class PriceRange(BaseModel):
