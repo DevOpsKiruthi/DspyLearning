@@ -83,19 +83,20 @@ def resume_match_metric(gold, pred):
     
     return metrics
 
-# Create the evaluator
-evaluator = dspy.Evaluate(
-    metric=resume_match_metric,
-    num_threads=1  # Use single thread for simplicity
-)
-
 # Run the evaluation
 if __name__ == "__main__":
     # Initialize the model
     model = SimpleResumeEvaluator()
     
-    # Run evaluation
-    results = evaluator(model, test_examples)
+    # Create the evaluator - THIS IS THE FIX: including the devset parameter
+    evaluator = dspy.Evaluate(
+        metric=resume_match_metric,
+        devset=test_examples,  # Pass the test examples as the devset
+        num_threads=1  # Use single thread for simplicity
+    )
+    
+    # Run evaluation - Note: we don't need to pass test_examples again here
+    results = evaluator(model)
     
     # Print overall results
     print("\n----- EVALUATION RESULTS -----")
