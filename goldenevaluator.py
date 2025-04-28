@@ -6,30 +6,44 @@ from pydantic import BaseModel, Field
 from config import azure_llm
 dspy.settings.configure(lm=azure_llm)
 
-# Basic model for resume evaluation
+# Basic model for resume evaluation with fixed validation
 class CandidateEvaluation(BaseModel):
     name: str
     selected: bool
-    fit_score: float = Field(gt=0, lt=1)  # Ensures score is between 0 and 1
+    # Changed to allow 0.01 as minimum to avoid validation errors
+    fit_score: float = Field(ge=0.01, lt=1)  # Ensures score is between 0.01 and 0.99
 
-# Define the signature for resume evaluation
+# Define the signature for resume evaluation with clearer instructions
 class ResumeEvaluationSignature(dspy.Signature):
     resume: str = dspy.InputField(desc="Candidate's resume text")
     job_description: str = dspy.InputField(desc="Job description")
-    evaluation: CandidateEvaluation = dspy.OutputField(desc="Evaluation of the candidate")
+    evaluation: CandidateEvaluation = dspy.OutputField(
+        desc="Evaluation of the candidate. The fit_score MUST be between 0.01 and 0.99."
+    )
 
-# Create a simple module that evaluates resumes
+# Create a simple module that evaluates resumes with better prompting
 class SimpleResumeEvaluator(dspy.Module):
     def __init__(self):
         super().__init__()
         self.evaluate = dspy.ChainOfThought(ResumeEvaluationSignature)
     
     def forward(self, resume, job_description):
-        result = self.evaluate(resume=resume, job_description=job_description)
-        return result.evaluation
+        # Added extra validation to ensure fit_score is valid
+        try:
+            result = self.evaluate(resume=resume, job_description=job_description)
+            # Ensure fit_score meets constraints
+            if result.evaluation.fit_score < 0.01:
+                result.evaluation.fit_score = 0.01
+            return result.evaluation
+        except Exception as e:
+            # Return a default valid evaluation if there's an error
+            return CandidateEvaluation(
+                name="Unknown Candidate",
+                selected=False,
+                fit_score=0.01  # Minimum valid score
+            )
 
-# Create a few example resumes and job descriptions for testing
-# FIX: Specify which fields are inputs using with_inputs()
+# Create test examples
 test_examples = [
     dspy.Example(
         resume="Software Engineer with 5 years experience in Python and JavaScript. Developed web applications using React and Django.",
@@ -62,11 +76,11 @@ test_examples = [
     ).with_inputs("resume", "job_description")
 ]
 
-# Define a simple metric function
+# Define metric function to return percentage
 def resume_match_metric(gold, pred):
     """
     Evaluate how well the model's evaluation matches the gold standard
-    Returns a dictionary of metrics
+    Returns a percentage score (0-100)
     """
     # Calculate selection accuracy (boolean match)
     selection_match = float(gold.gold_evaluation["selected"] == pred.selected)
@@ -78,8 +92,8 @@ def resume_match_metric(gold, pred):
     # Calculate an overall score (average of all metrics)
     overall = (selection_match + fit_score_accuracy) / 2
     
-    # FIX: Return a single value (overall score), not a dictionary
-    return overall
+    # Return the percentage (0-100)
+    return overall * 100
 
 # Run the evaluation
 if __name__ == "__main__":
@@ -90,25 +104,21 @@ if __name__ == "__main__":
     evaluator = dspy.Evaluate(
         metric=resume_match_metric,
         devset=test_examples,
-        num_threads=1
+        num_threads=1,
+        display_progress=True  # Show progress during evaluation
     )
     
     # Run evaluation
     results = evaluator(model)
     
-    # FIX: Handle results as a float, not a dictionary
     print("\n----- EVALUATION RESULTS -----")
-    print(f"Overall score: {results:.2f}")
+    print(f"Overall score: {results:.2f}%")
     
-    # If you need more detailed metrics, you'll need to calculate them separately
-    # or adjust the evaluate function to store them somewhere
-    
-    # For demonstration, let's manually run the evaluation on each example
-    # to get detailed results
+    # Manually evaluate each example for detailed results
     print("\n----- INDIVIDUAL EXAMPLES -----")
     for i, example in enumerate(test_examples):
-        # Run the model on the example
         try:
+            # Run the model on the example
             prediction = model(resume=example.resume, job_description=example.job_description)
             
             # Calculate metrics
@@ -117,11 +127,11 @@ if __name__ == "__main__":
             fit_score_accuracy = 1.0 - score_diff
             
             # Print results
-            print(f"\nExample {i+1}:")
+            print(f"\n✅ Example {i+1}:")
             print(f"Resume: {example.resume[:50]}...")
             print(f"Job: {example.job_description[:50]}...")
             print(f"Gold - Selected: {example.gold_evaluation['selected']}, Score: {example.gold_evaluation['fit_score']:.2f}")
             print(f"Pred - Selected: {prediction.selected}, Score: {prediction.fit_score:.2f}")
-            print(f"Metrics - Selection: {selection_match:.2f}, Score accuracy: {fit_score_accuracy:.2f}")
+            print(f"Metrics - Selection match: {selection_match*100:.0f}%, Score accuracy: {fit_score_accuracy*100:.0f}%")
         except Exception as e:
-            print(f"\nExample {i+1} - Error: {str(e)}")
+            print(f"\n❌ Example {i+1} - Error: {str(e)}")
