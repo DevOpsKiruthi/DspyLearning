@@ -29,39 +29,38 @@ class SimpleResumeEvaluator(dspy.Module):
         return result.evaluation
 
 # Create a few example resumes and job descriptions for testing
+# FIX: Specify which fields are inputs using with_inputs()
 test_examples = [
     dspy.Example(
         resume="Software Engineer with 5 years experience in Python and JavaScript. Developed web applications using React and Django.",
-        job_description="Looking for a Software Engineer with Python and React experience."
-    ),
+        job_description="Looking for a Software Engineer with Python and React experience.",
+        gold_evaluation={
+            "name": "Candidate 1", 
+            "selected": True, 
+            "fit_score": 0.85
+        }
+    ).with_inputs("resume", "job_description"),
+    
     dspy.Example(
         resume="Marketing specialist with experience in social media campaigns and content creation.",
-        job_description="Looking for a Software Engineer with Python and React experience."
-    ),
+        job_description="Looking for a Software Engineer with Python and React experience.",
+        gold_evaluation={
+            "name": "Candidate 2", 
+            "selected": False, 
+            "fit_score": 0.2
+        }
+    ).with_inputs("resume", "job_description"),
+    
     dspy.Example(
         resume="Data Scientist with experience in machine learning, Python, and SQL.",
-        job_description="Looking for a Data Scientist with machine learning and Python experience."
-    )
+        job_description="Looking for a Data Scientist with machine learning and Python experience.",
+        gold_evaluation={
+            "name": "Candidate 3", 
+            "selected": True, 
+            "fit_score": 0.9
+        }
+    ).with_inputs("resume", "job_description")
 ]
-
-# Add gold standard evaluations to each example
-test_examples[0].gold_evaluation = {
-    "name": "Candidate 1", 
-    "selected": True, 
-    "fit_score": 0.85
-}
-
-test_examples[1].gold_evaluation = {
-    "name": "Candidate 2", 
-    "selected": False, 
-    "fit_score": 0.2
-}
-
-test_examples[2].gold_evaluation = {
-    "name": "Candidate 3", 
-    "selected": True, 
-    "fit_score": 0.9
-}
 
 # Define a simple metric function
 def resume_match_metric(gold, pred):
@@ -69,47 +68,60 @@ def resume_match_metric(gold, pred):
     Evaluate how well the model's evaluation matches the gold standard
     Returns a dictionary of metrics
     """
-    metrics = {}
-    
     # Calculate selection accuracy (boolean match)
-    metrics["selection_match"] = float(gold.gold_evaluation["selected"] == pred.selected)
+    selection_match = float(gold.gold_evaluation["selected"] == pred.selected)
     
     # Calculate fit score accuracy (how close the predicted score is to gold)
     score_diff = abs(gold.gold_evaluation["fit_score"] - pred.fit_score)
-    metrics["fit_score_accuracy"] = 1.0 - score_diff  # Higher is better
+    fit_score_accuracy = 1.0 - score_diff  # Higher is better
     
     # Calculate an overall score (average of all metrics)
-    metrics["overall"] = (metrics["selection_match"] + metrics["fit_score_accuracy"]) / 2
+    overall = (selection_match + fit_score_accuracy) / 2
     
-    return metrics
+    # FIX: Return a single value (overall score), not a dictionary
+    return overall
 
 # Run the evaluation
 if __name__ == "__main__":
     # Initialize the model
     model = SimpleResumeEvaluator()
     
-    # Create the evaluator - THIS IS THE FIX: including the devset parameter
+    # Create the evaluator
     evaluator = dspy.Evaluate(
         metric=resume_match_metric,
-        devset=test_examples,  # Pass the test examples as the devset
-        num_threads=1  # Use single thread for simplicity
+        devset=test_examples,
+        num_threads=1
     )
     
-    # Run evaluation - Note: we don't need to pass test_examples again here
+    # Run evaluation
     results = evaluator(model)
     
-    # Print overall results
+    # FIX: Handle results as a float, not a dictionary
     print("\n----- EVALUATION RESULTS -----")
-    print(f"Overall score: {results['overall']:.2f}")
-    print(f"Selection match: {results['selection_match']:.2f}")
-    print(f"Fit score accuracy: {results['fit_score_accuracy']:.2f}")
+    print(f"Overall score: {results:.2f}")
     
-    # Print per-example results
+    # If you need more detailed metrics, you'll need to calculate them separately
+    # or adjust the evaluate function to store them somewhere
+    
+    # For demonstration, let's manually run the evaluation on each example
+    # to get detailed results
     print("\n----- INDIVIDUAL EXAMPLES -----")
-    for i, example in enumerate(results["examples"]):
-        print(f"\nExample {i+1}:")
-        print(f"Resume: {example['input'].resume[:50]}...")
-        print(f"Job: {example['input'].job_description[:50]}...")
-        print(f"Gold - Selected: {example['gold'].gold_evaluation['selected']}, Score: {example['gold'].gold_evaluation['fit_score']:.2f}")
-        print(f"Pred - Selected: {example['pred'].selected}, Score: {example['pred'].fit_score:.2f}")
-        print(f"Metrics - Selection: {example['selection_match']:.2f}, Score accuracy: {example['fit_score_accuracy']:.2f}")
+    for i, example in enumerate(test_examples):
+        # Run the model on the example
+        try:
+            prediction = model(resume=example.resume, job_description=example.job_description)
+            
+            # Calculate metrics
+            selection_match = float(example.gold_evaluation["selected"] == prediction.selected)
+            score_diff = abs(example.gold_evaluation["fit_score"] - prediction.fit_score)
+            fit_score_accuracy = 1.0 - score_diff
+            
+            # Print results
+            print(f"\nExample {i+1}:")
+            print(f"Resume: {example.resume[:50]}...")
+            print(f"Job: {example.job_description[:50]}...")
+            print(f"Gold - Selected: {example.gold_evaluation['selected']}, Score: {example.gold_evaluation['fit_score']:.2f}")
+            print(f"Pred - Selected: {prediction.selected}, Score: {prediction.fit_score:.2f}")
+            print(f"Metrics - Selection: {selection_match:.2f}, Score accuracy: {fit_score_accuracy:.2f}")
+        except Exception as e:
+            print(f"\nExample {i+1} - Error: {str(e)}")
