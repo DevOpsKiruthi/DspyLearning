@@ -82,7 +82,7 @@ test_examples = [
     dspy.Example(
         sentence="The customer service representative explained their policy without offering any solutions.",
         gold_evaluation={
-            "emotion": "frustrated", 
+            "emotion": "angry", 
             "intensity": 0.50
         }
     ).with_inputs("sentence"),
