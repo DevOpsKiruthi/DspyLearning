@@ -1,0 +1,15 @@
+{
+  "name": "Unknown",
+  "selected": false,
+  "not_selected": true,
+  "ai_review": {
+    "strengths": [],
+    "weaknesses": [
+      "No resume provided for evaluation",
+      "Unable to verify skills or experience in Angular and Node.js",
+      "No evidence of meeting the 2+ years of hands-on experience requirement"
+    ],
+    "fit_score": 0,
+    "comments": "The candidate did not provide a resume, making it impossible to assess their qualifications, skills, or experience against the job requirements. Without this information, the candidate cannot be considered for the role."
+  }
+}

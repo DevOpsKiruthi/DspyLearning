@@ -1,0 +1,19 @@
+{
+  "name": "Candidate Evaluation for Node.js and Angular Role",
+  "selected": false,
+  "not_selected": true,
+  "ai_review": {
+    "strengths": [
+      "Extensive experience in cloud architecture and infrastructure design.",
+      "Strong expertise in AWS and GCP cloud platforms.",
+      "Proficient in Kubernetes, Terraform, and security engineering."
+    ],
+    "weaknesses": [
+      "No mention of Node.js or Angular experience.",
+      "Lacks demonstrated experience in web application development.",
+      "Does not meet the 2+ years of hands-on experience requirement for Angular and Node.js."
+    ],
+    "fit_score": 20,
+    "comments": "The candidate has a strong background in cloud architecture and security but lacks the required skills and experience in Node.js and Angular for this role. They are not a suitable fit for the position."
+  }
+}
