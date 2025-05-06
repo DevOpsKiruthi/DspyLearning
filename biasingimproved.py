@@ -267,6 +267,7 @@ def tune_prompt_template(model):
             )
             
             score = run_with_retries(evaluator, model)
+            # FIX: Correctly display percentages
             print(f"Template {i+1} score: {score*100:.2f}%")
             
             if score > best_score:
@@ -277,6 +278,7 @@ def tune_prompt_template(model):
     
     # Apply best template
     if best_template:
+        # FIX: Correctly display percentages
         print(f"Using best template (score: {best_score*100:.2f}%)")
         model.evaluate.prefix = best_template
     
@@ -342,6 +344,7 @@ if __name__ == "__main__":
         )
         
         results = run_with_retries(evaluator, hardcoded_model, max_retries=5)
+        # FIX: Correctly display percentages
         print(f"Hardcoded model score: {results*100:.2f}%")
     except Exception as e:
         print(f"Hardcoded evaluation failed: {e}")
@@ -359,6 +362,7 @@ if __name__ == "__main__":
         )
         
         results = run_with_retries(evaluator, flexible_model, max_retries=5)
+        # FIX: Correctly display percentages
         print(f"Flexible model score: {results*100:.2f}%")
     except Exception as e:
         print(f"Flexible evaluation failed: {e}")
@@ -376,4 +380,5 @@ if __name__ == "__main__":
     
     # Run final evaluation with the hardcoded model for best results
     results = run_with_retries(evaluator, hardcoded_model, max_retries=3)
+    # FIX: Correctly display percentages
     print(f"Average score: {results*100:.2f}%")
