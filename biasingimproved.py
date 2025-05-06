@@ -268,7 +268,7 @@ def tune_prompt_template(model):
             
             score = run_with_retries(evaluator, model)
             # FIX: Correctly display percentages
-            print(f"Template {i+1} score: {score*100:.2f}%")
+            print(f"Template {i+1} score: {score:.2f}%")
             
             if score > best_score:
                 best_score = score
@@ -279,7 +279,7 @@ def tune_prompt_template(model):
     # Apply best template
     if best_template:
         # FIX: Correctly display percentages
-        print(f"Using best template (score: {best_score*100:.2f}%)")
+        print(f"Using best template (score: {best_score:.2f}%)")
         model.evaluate.prefix = best_template
     
     return model
