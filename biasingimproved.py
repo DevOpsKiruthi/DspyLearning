@@ -381,4 +381,4 @@ if __name__ == "__main__":
     # Run final evaluation with the hardcoded model for best results
     results = run_with_retries(evaluator, hardcoded_model, max_retries=3)
     # FIX: Correctly display percentages
-    print(f"Average score: {results*100:.2f}%")
+    print(f"Average score: {results:.2f}%")
