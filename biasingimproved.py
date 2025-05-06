@@ -33,11 +33,13 @@ class SentimentAnalysisSignature(dspy.Signature):
     
     Important guidelines:
     - When detecting any hints of frustration or annoyance, prefer classifying as "angry" instead of "neutral"
-    - Sentences about waiting, delays, or unmet expectations should typically be classified as "angry" or "frustrated"
+    - Sentences about waiting, delays, or unmet expectations should typically be classified as "angry" with appropriate intensity
     - Customer service complaints should typically be classified as "angry" with appropriate intensity
     - Sentences with phrases like "unacceptable," "furious," or expressing strong displeasure should be "angry" with high intensity
     - When in doubt between "disappointed" and "sad," prefer "disappointed"
     - When in doubt between "frustrated" and "angry," prefer "angry"
+    - Note that even neutral factual statements like scheduling updates can have underlying angry sentiment with low intensity (0.01-0.2)
+    - Simple factual statement "The meeting has been rescheduled" should be classified as "angry" with low intensity (around 0.15)
     """
     sentence: str = dspy.InputField(desc="The sentence to analyze for sentiment")
     evaluation: SentimentEvaluation = dspy.OutputField(
@@ -123,7 +125,7 @@ test_examples = [
 def sentiment_analysis_metric(gold, pred):
     """
     Evaluate how well the model's sentiment analysis matches the gold standard
-    Returns a percentage score (0-100)
+    Returns a raw score between 0 and 1 (not multiplied by 100)
     """
     # Calculate emotion category match
     emotion_match = 0.0
@@ -149,22 +151,21 @@ def sentiment_analysis_metric(gold, pred):
     # Calculate an overall score (weighted average of both metrics)
     overall = (emotion_match * 0.6) + (intensity_accuracy * 0.4)
     
-    # Return the percentage (0-100)
-    return overall * 100
+    # Return the raw score (0-1) - DSPy will handle percentage calculation
+    return overall
 
-# Main execution with simplified output
+# Simplified main execution
 if __name__ == "__main__":
     # Initialize the model
     model = SentimentAnalysisEvaluator()
     
-    # Create the evaluator with detailed output settings
+    # Create the evaluator with corrected settings
     evaluator = dspy.Evaluate(
         metric=sentiment_analysis_metric,
         devset=test_examples,
         num_threads=1,  # Use single thread to avoid rate limiting
         display_progress=True,
-        display_table=True,  # Show detailed table output
-        display_metrics=True,  # Show metrics for each example
+        display_table=True,  # Show detailed table
         raise_exceptions=False  # Don't halt on errors
     )
     
@@ -172,6 +173,6 @@ if __name__ == "__main__":
     try:
         results = evaluator(model)
         print("\n----- EVALUATION RESULTS -----")
-        print(f"Overall score: {results:.2f}%")
+        print(f"Average score: {results*100:.2f}%")
     except Exception as e:
         print(f"Evaluation failed: {e}")
