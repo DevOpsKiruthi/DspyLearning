@@ -345,7 +345,7 @@ if __name__ == "__main__":
         
         results = run_with_retries(evaluator, hardcoded_model, max_retries=5)
         # FIX: Correctly display percentages
-        print(f"Hardcoded model score: {results*100:.2f}%")
+        print(f"Hardcoded model score: {results:.2f}%")
     except Exception as e:
         print(f"Hardcoded evaluation failed: {e}")
     
@@ -363,7 +363,7 @@ if __name__ == "__main__":
         
         results = run_with_retries(evaluator, flexible_model, max_retries=5)
         # FIX: Correctly display percentages
-        print(f"Flexible model score: {results*100:.2f}%")
+        print(f"Flexible model score: {results:.2f}%")
     except Exception as e:
         print(f"Flexible evaluation failed: {e}")
     
