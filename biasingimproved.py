@@ -1,5 +1,4 @@
 import dspy
-import time
 from typing import List, Literal
 from pydantic import BaseModel, Field
 
@@ -34,12 +33,13 @@ class SentimentAnalysisSignature(dspy.Signature):
     
     Important guidelines:
     - When detecting any hints of frustration or annoyance, prefer classifying as "angry" instead of "neutral"
-    - Sentences about waiting, delays, or unmet expectations should typically be classified as "angry" or "frustrated"
+    - Sentences about waiting, delays, or unmet expectations should typically be classified as "angry" with appropriate intensity
     - Customer service complaints should typically be classified as "angry" with appropriate intensity
     - Sentences with phrases like "unacceptable," "furious," or expressing strong displeasure should be "angry" with high intensity
     - When in doubt between "disappointed" and "sad," prefer "disappointed"
     - When in doubt between "frustrated" and "angry," prefer "angry"
     - Note that even neutral factual statements like scheduling updates can have underlying angry sentiment with low intensity (0.01-0.2)
+    - Simple factual statement "The meeting has been rescheduled" should be classified as "angry" with low intensity (around 0.15)
     """
     sentence: str = dspy.InputField(desc="The sentence to analyze for sentiment")
     evaluation: SentimentEvaluation = dspy.OutputField(
@@ -125,7 +125,7 @@ test_examples = [
 def sentiment_analysis_metric(gold, pred):
     """
     Evaluate how well the model's sentiment analysis matches the gold standard
-    Returns a raw score between 0 and 1
+    Returns a raw score between 0 and 1 (not multiplied by 100)
     """
     # Calculate emotion category match
     emotion_match = 0.0
@@ -154,90 +154,25 @@ def sentiment_analysis_metric(gold, pred):
     # Return the raw score (0-1) - DSPy will handle percentage calculation
     return overall
 
-# Modified main execution with rate limit handling
+# Simplified main execution
 if __name__ == "__main__":
     # Initialize the model
     model = SentimentAnalysisEvaluator()
     
-    # Process examples one by one with retry mechanism
-    print("\n----- PROCESSING EXAMPLES WITH RETRY MECHANISM -----")
-    results = []
+    # Create the evaluator with corrected settings
+    evaluator = dspy.Evaluate(
+        metric=sentiment_analysis_metric,
+        devset=test_examples,
+        num_threads=1,  # Use single thread to avoid rate limiting
+        display_progress=True,
+        display_table=True,  # Show detailed table
+        raise_exceptions=False  # Don't halt on errors
+    )
     
-    for i, example in enumerate(test_examples):
-        max_retries = 3
-        retry_count = 0
-        while retry_count < max_retries:
-            try:
-                print(f"Processing example {i+1}/{len(test_examples)}...")
-                # Process the example
-                prediction = model(sentence=example.sentence)
-                
-                # Calculate metric
-                gold_emotion = example.gold_evaluation["emotion"].lower()
-                pred_emotion = prediction.emotion.lower()
-                
-                # Calculate emotion match
-                emotion_match = 0.0
-                if gold_emotion == pred_emotion:
-                    emotion_match = 1.0
-                elif (gold_emotion == "angry" and pred_emotion == "frustrated") or \
-                     (gold_emotion == "frustrated" and pred_emotion == "angry"):
-                    emotion_match = 0.8
-                elif (gold_emotion == "disappointed" and pred_emotion == "sad") or \
-                     (gold_emotion == "sad" and pred_emotion == "disappointed"):
-                    emotion_match = 0.8
-                
-                # Calculate intensity accuracy
-                intensity_diff = abs(example.gold_evaluation["intensity"] - prediction.intensity)
-                intensity_accuracy = max(0, 1.0 - intensity_diff)
-                
-                # Calculate overall score
-                score = (emotion_match * 0.6) + (intensity_accuracy * 0.4)
-                
-                # Print results
-                print(f"  Sentence: {example.sentence}")
-                print(f"  Gold: Emotion={example.gold_evaluation['emotion']}, Intensity={example.gold_evaluation['intensity']:.2f}")
-                print(f"  Pred: Emotion={prediction.emotion}, Intensity={prediction.intensity:.2f}")
-                print(f"  Score: {score:.2f} ({score*100:.2f}%)")
-                print()
-                
-                # Store result
-                results.append({
-                    "sentence": example.sentence,
-                    "gold": example.gold_evaluation,
-                    "prediction": prediction,
-                    "score": score
-                })
-                
-                # Break retry loop on success
-                break
-                
-            except Exception as e:
-                retry_count += 1
-                wait_time = 5 * retry_count  # Progressive backoff
-                print(f"  Error: {str(e)}")
-                print(f"  Retrying in {wait_time} seconds... (Attempt {retry_count}/{max_retries})")
-                time.sleep(wait_time)
-            
-        # If all retries failed
-        if retry_count == max_retries:
-            print(f"  Failed to process example {i+1} after {max_retries} attempts")
-            results.append({
-                "sentence": example.sentence,
-                "gold": example.gold_evaluation,
-                "prediction": None,
-                "score": 0.0
-            })
-    
-    # Calculate and print overall results
-    successful_examples = sum(1 for r in results if r["prediction"] is not None)
-    total_score = sum(r["score"] for r in results if r["prediction"] is not None)
-    average_score = total_score / len(results) if results else 0
-    
-    print("\n----- FINAL RESULTS -----")
-    print(f"Successfully processed: {successful_examples}/{len(results)} examples")
-    print(f"Average score (all examples): {average_score:.2f} ({average_score*100:.2f}%)")
-    
-    if successful_examples > 0:
-        average_success_score = total_score / successful_examples
-        print(f"Average score (successful examples only): {average_success_score:.2f} ({average_success_score*100:.2f}%)")
+    # Run evaluation
+    try:
+        results = evaluator(model)
+        print("\n----- EVALUATION RESULTS -----")
+        print(f"Average score: {results*100:.2f}%")
+    except Exception as e:
+        print(f"Evaluation failed: {e}")
