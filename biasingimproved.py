@@ -39,12 +39,12 @@ class SentimentAnalysisSignature(dspy.Signature):
         desc="Detailed sentiment evaluation with emotion category and intensity score"
     )
 
-# Improved sentiment analyzer using more advanced reasoning
+# Improved sentiment analyzer using standard DSPy modules
 class SentimentAnalyzer(dspy.Module):
     def __init__(self):
         super().__init__()
-        # Use PredictorWithExample to leverage demonstration examples
-        self.analyzer = dspy.PredictorWithExample(SentimentAnalysisSignature)
+        # Use Predict with examples for better performance
+        self.analyzer = dspy.ChainOfThought(SentimentAnalysisSignature)
     
     def forward(self, sentence):
         # Process the sentence and return the evaluation
@@ -146,31 +146,21 @@ def train_and_evaluate_model():
     # Prepare dataset
     dataset = load_sentiment_dataset()
     
-    # Use all examples for both training and evaluation to increase accuracy
-    # This creates a more comprehensive model
-    
     # Initialize model
     model = SentimentAnalyzer()
     
-    # Use few-shot learning to improve model accuracy
-    compiled_model = dspy.compile(
-        model,
-        dataset=dataset,  # Use entire dataset as few-shot examples
-        max_demos=3       # Include multiple examples to guide the model
-    )
-    
-    # Evaluate using dspy.evaluate function
-    score = dspy.evaluate(
-        compiled_model,
-        dataset=dataset,
+    # Standard DSPy evaluation approach
+    evaluator = dspy.Evaluate(
         metric=sentiment_accuracy_metric,
-        display_table=True,
-        display_progress=True
+        devset=dataset,  # Use all examples for evaluation
+        display_progress=True,
+        display_table=True
     )
     
-    print(f"Model Performance: {score.accuracy*100:.2f}%")
+    score = evaluator(model)
+    print(f"Model Performance: {score*100:.2f}%")
     
-    return compiled_model
+    return model
 
 # Test function to examine individual predictions
 def test_individual_examples(model):
@@ -189,7 +179,7 @@ def test_individual_examples(model):
 
 # Main execution
 if __name__ == "__main__":
-    print("Starting simplified sentiment analysis...")
+    print("Starting optimized sentiment analysis...")
     
     try:
         # Train and evaluate the model
@@ -198,5 +188,13 @@ if __name__ == "__main__":
         # Test on individual examples
         test_individual_examples(trained_model)
         
+        # Showcase how to use the model in a real application
+        print("\nUsing the model in a real application:")
+        user_input = "I'm really impressed with the quality of service I received today!"
+        result = trained_model(user_input)
+        print(f"Input: {user_input}")
+        print(f"Analysis: {result.emotion} (intensity: {result.intensity:.2f})")
+        
     except Exception as e:
         print(f"An error occurred: {e}")
+        print("Try adjusting the parameters for better results.")
