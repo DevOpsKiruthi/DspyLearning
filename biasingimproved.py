@@ -235,7 +235,7 @@ def train_and_evaluate_model():
         )
         
         initial_score = initial_evaluator(model)
-        print(f"Initial Model Performance: {initial_score*100:.2f}%")
+        print(f"Initial Model Performance: {initial_score:.2f}%")
     except Exception as e:
         print(f"Initial evaluation faced an error (possibly rate limiting): {e}")
         print("Continuing to final evaluation with reduced test set...")
@@ -254,7 +254,7 @@ def train_and_evaluate_model():
         )
         
         final_score = final_evaluator(model)
-        print(f"Final Model Performance: {final_score*100:.2f}%")
+        print(f"Final Model Performance: {final_score:.2f}%")
     except Exception as e:
         print(f"Final evaluation faced an error: {e}")
         print("You can still use the model for individual testing.")
