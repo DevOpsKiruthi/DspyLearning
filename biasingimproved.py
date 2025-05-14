@@ -70,30 +70,30 @@ def load_sentiment_dataset():
             }
         ).with_inputs("sentence"),
         
-        dspy.Example(
-            sentence="The team successfully completed the project ahead of schedule.",
-            gold_evaluation={
-                "emotion": "positive", 
-                "intensity": 0.8  # Increased intensity for clearer distinction
-            }
-        ).with_inputs("sentence"),
+    #     dspy.Example(
+    #         sentence="The team successfully completed the project ahead of schedule.",
+    #         gold_evaluation={
+    #             "emotion": "positive", 
+    #             "intensity": 0.8  # Increased intensity for clearer distinction
+    #         }
+    #     ).with_inputs("sentence"),
         
-        dspy.Example(
-            sentence="The policy seems fair and reasonable.",
-            gold_evaluation={
-                "emotion": "neutral", 
-                "intensity": 0.1
-            }
-        ).with_inputs("sentence"),
+    #     dspy.Example(
+    #         sentence="The policy seems fair and reasonable.",
+    #         gold_evaluation={
+    #             "emotion": "neutral", 
+    #             "intensity": 0.1
+    #         }
+    #     ).with_inputs("sentence"),
         
-        dspy.Example(
-            sentence="I'm deeply frustrated by the lack of communication.",
-            gold_evaluation={
-                "emotion": "frustrated", 
-                "intensity": 0.7  # Increased intensity for better learning
-            }
-        ).with_inputs("sentence")
-    ]
+    #     dspy.Example(
+    #         sentence="I'm deeply frustrated by the lack of communication.",
+    #         gold_evaluation={
+    #             "emotion": "frustrated", 
+    #             "intensity": 0.7  # Increased intensity for better learning
+    #         }
+    #     ).with_inputs("sentence")
+    # ]
 
 # Simple metric for sentiment evaluation with improved accuracy
 def sentiment_accuracy_metric(gold, pred):
@@ -158,7 +158,7 @@ def train_and_evaluate_model():
     )
     
     score = evaluator(model)
-    print(f"Model Performance: {score*100:.2f}%")
+    print(f"Model Performance: {score:.2f}%")
     
     return model
 
