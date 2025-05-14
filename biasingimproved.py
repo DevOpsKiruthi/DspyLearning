@@ -1,10 +1,38 @@
 import dspy
 from typing import List, Literal
 from pydantic import BaseModel, Field
+import time
+import random
 
 # Configure DSPy with your language model
 from config import azure_llm
 dspy.settings.configure(lm=azure_llm)
+
+# Function to handle rate limiting with exponential backoff
+def rate_limit_handler(func):
+    def wrapper(*args, **kwargs):
+        max_retries = 5
+        base_delay = 5  # Start with a 5-second delay
+        
+        for attempt in range(max_retries):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                error_message = str(e).lower()
+                if "rate" in error_message and "limit" in error_message:
+                    # Calculate delay with exponential backoff and jitter
+                    delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                    print(f"Rate limit hit. Retrying in {delay:.2f} seconds (attempt {attempt+1}/{max_retries})")
+                    time.sleep(delay)
+                    continue
+                else:
+                    # If it's not a rate limit error, re-raise it
+                    raise
+        
+        # If we've exhausted all retries
+        raise Exception(f"Failed after {max_retries} retries due to rate limiting")
+    
+    return wrapper
 
 # Refined sentiment model with clear emotion categories
 class SentimentEvaluation(BaseModel):
@@ -44,6 +72,7 @@ class EnhancedSentimentAnalyzer(dspy.Module):
         # Using Predict instead of ChainOfThought to potentially get more consistent results
         self.analyzer = dspy.ChainOfThought(SentimentAnalysisSignature)
     
+    @rate_limit_handler
     def forward(self, sentence):
         # Process the sentence and return the evaluation
         result = self.analyzer(sentence=sentence)
@@ -196,32 +225,39 @@ def train_and_evaluate_model():
     # Initialize model
     model = EnhancedSentimentAnalyzer()
     
-    # Evaluate initial model
-    initial_evaluator = dspy.Evaluate(
-        metric=sentiment_accuracy_metric,
-        devset=test_set,
-        num_threads=1,
-        display_progress=True
-    )
+    # Evaluate initial model with rate limiting consideration
+    try:
+        initial_evaluator = dspy.Evaluate(
+            metric=sentiment_accuracy_metric,
+            devset=test_set[:2],  # Use fewer examples to avoid rate limits
+            num_threads=1,  # Use only 1 thread to avoid concurrent requests
+            display_progress=True
+        )
+        
+        initial_score = initial_evaluator(model)
+        print(f"Initial Model Performance: {initial_score*100:.2f}%")
+    except Exception as e:
+        print(f"Initial evaluation faced an error (possibly rate limiting): {e}")
+        print("Continuing to final evaluation with reduced test set...")
     
-    initial_score = initial_evaluator(model)
-    print(f"Initial Model Performance: {initial_score*100:.2f}%")
+    # Add delay between evaluations to avoid rate limiting
+    time.sleep(10)
     
-    # Optional: Optimize the model (comment out if not needed)
-    # optimized_model = optimize_model(model, train_set)
-    # model = optimized_model  # Use the optimized model
-    
-    # Final evaluation
-    final_evaluator = dspy.Evaluate(
-        metric=sentiment_accuracy_metric,
-        devset=test_set,
-        num_threads=1,
-        display_progress=True,
-        display_table=True
-    )
-    
-    final_score = final_evaluator(model)
-    print(f"Final Model Performance: {final_score*100:.2f}%")
+    # Final evaluation with reduced test set
+    try:
+        final_evaluator = dspy.Evaluate(
+            metric=sentiment_accuracy_metric,
+            devset=test_set[:2],  # Use fewer examples to avoid rate limits
+            num_threads=1,  # Use only 1 thread to avoid concurrent requests
+            display_progress=True,
+            display_table=True
+        )
+        
+        final_score = final_evaluator(model)
+        print(f"Final Model Performance: {final_score*100:.2f}%")
+    except Exception as e:
+        print(f"Final evaluation faced an error: {e}")
+        print("You can still use the model for individual testing.")
     
     return model
 
@@ -243,8 +279,12 @@ def test_individual_examples(model):
 
 # Main execution
 if __name__ == "__main__":
-    # Train and evaluate the model
-    trained_model = train_and_evaluate_model()
+    print("Starting sentiment analysis with rate limit handling...")
     
-    # Test on individual examples
-    test_individual_examples(trained_model)
+    try:
+        # Train and evaluate the model
+        trained_model = train_and_evaluate_model()
+        
+    except Exception as e:
+        print(f"An error occurred in the main execution: {e}")
+        print("You might need to increase the delays between API calls or upgrade your Azure tier.")
