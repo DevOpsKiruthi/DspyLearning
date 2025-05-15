@@ -162,20 +162,20 @@ def train_and_evaluate_model():
     
     return model
 
-# Test function to examine individual predictions
-def test_individual_examples(model):
-    test_sentences = [
-        "The policy seems fair and reasonable.",
-        "I'm deeply frustrated by the lack of communication.",
-        "This product exceeded all my expectations!"
-    ]
+# # Test function to examine individual predictions
+# def test_individual_examples(model):
+#     test_sentences = [
+#         "The policy seems fair and reasonable.",
+#         "I'm deeply frustrated by the lack of communication.",
+#         "This product exceeded all my expectations!"
+#     ]
     
-    print("\nTesting individual examples:")
-    for sentence in test_sentences:
-        result = model(sentence)
-        print(f"Sentence: {sentence}")
-        print(f"Prediction: emotion='{result.emotion}' intensity={result.intensity}")
-        print("-" * 50)
+#     print("\nTesting individual examples:")
+#     for sentence in test_sentences:
+#         result = model(sentence)
+#         print(f"Sentence: {sentence}")
+#         print(f"Prediction: emotion='{result.emotion}' intensity={result.intensity}")
+#         print("-" * 50)
 
 # Main execution
 if __name__ == "__main__":
