@@ -185,8 +185,8 @@ if __name__ == "__main__":
         # Train and evaluate the model
         trained_model = train_and_evaluate_model()
         
-        # Test on individual examples
-        test_individual_examples(trained_model)
+        # # Test on individual examples
+        # test_individual_examples(trained_model)
         
         # Showcase how to use the model in a real application
         print("\nUsing the model in a real application:")
