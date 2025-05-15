@@ -93,7 +93,7 @@ def load_sentiment_dataset():
     #             "intensity": 0.7  # Increased intensity for better learning
     #         }
     #     ).with_inputs("sentence")
-    # ]
+     ]
 
 # Simple metric for sentiment evaluation with improved accuracy
 def sentiment_accuracy_metric(gold, pred):
