@@ -1,0 +1,165 @@
+SANTHIYA RAVI
+
+SKILLS
+
+Programming Languages
+&Frameworks
+
+Angular | TypeScript | JavaScript
+(ES6)Bootstrap | Angular Material |
+ng-bootstrap | jQuery | HTML | CSS |
+Node js | Express.js
+
+Databases
+
+MongoDB | MySQL
+
+Tools & Software
+
+GitLab | Agile Methodologies |
+Postman | VS Code
+
+Additional Skills
+RESTful APIs | JWT | Agile/Scrum
+
+=) Ule7AV gle) y)
+
+Nandha Engineering College
+soo 0)
+2015 - 2019 corel]
+
+Government Girls Higher
+Sec-ondary School
+
+aise]
+
+2013 - 2015 FereleC MN)
+
+Government Girls Higher
+Sec-ondary School
+
+SSLC
+
+2011 - 2013 Scere aN]
+
+KEY ACHIEVEMENTS
+
+@ 1st Prize - Project
+Presentation
+
+Al-Ameen Engineering College,
+LS cele[on
+
+2nd Prize - Project
+Presentation @ IMAGE 17,
+
+AL-AMEEN Engineering College,
+on Artificial Intelligence.
+
+2nd Prize - Project
+Presentation,
+
+Intra-Department Fest on 5G
+Wireless Technology.
+
+Python Online Course
+
+Certified - Python Online Course,
+GUVI
+
+ 
+
+Software Developer
+
+8015647157
+https://www.linkedin.com/in/santhiyaravi
+
+santhiyaravibeece@gmail.com
+Chennai,TN
+
+SUMMARY
+
+Passionate Software Engineer with 3.5 years of experience in developing web
+applications and backend systems. Skilled at writing clear, concise code that is easy
+to maintain and troubleshoot. Experienced in working with both small and large teams
+across multiple projects and companies.
+
+EXPERIENCE
+
+07/2024 - 03/2025
+Chennai, TN
+
+Software Developer
+Asta Crs Pvt Ltd
+
+Application - Tresume
+
+Developed an Applicant Tracking System (ATS) to simplify the recruitment process.
+
+Integrated a third-party job board to enable seamless job postings and candidate
+
+tracking, improving hiring efficiency
+
+¢ Collaborated with customers to gather and analyze business requirements,
+translating them into technical specifications and actionable development plans.
+
+¢ Implemented automatic email functionality using NodeMailer, improving
+communication efficiency and contributing to a 15% increase in product revenue.
+
+¢ Identified and resolved issues in third-party integrations with platforms like Dice,
+Monster, and CareerBuilder, ensuring seamless functionality and improving system
+reliability.
+
+¢ Designed and implemented responsive forms to enhance user interaction and
+accessibility across various devices.
+
+@ https://tresume.us/
+
+11/2021 - 06/2024
+Tirupur, TN
+
+Software Developer
+lonstar India Pvt Ltd
+
+Application- Unoservice
+Worked at UnoService, an on-demand platform for home maintenance and repair
+services. Contributed to improving the platform for better user experience and service
+efficiency
+¢ Created Responsive Design and Forms: Developed responsive design layouts and
+forms to ensure optimal user experience across different devices and screen sizes.
+¢ Integrated API to Present Data: Integrated APIs to fetch and present data from the
+database, ensuring real-time updates and seamless data management.
+¢ Performed Integrated Testing: Conducted comprehensive integrated testing to
+validate module functionalities, data integrity, and system performance.
+e Performed Code Review: Engaged in code reviews to ensure code quality,
+adherence to best practices, and maintainability.
+
+@ https://dsp.unoservice.in/#/
+
+PERSONAL PROJECT
+ABS BILLING SYSTEM
+
+Developed a billing system as a freelance project, featuring barcode generation, sales
+
+tracking, stock management, user permissions, report generation, and a master
+
+module for predefined items.
+
+¢ Developed a scalable billing system using Angular for the frontend, Node.js and
+Express.js for the backend, and MongoDB for database management, facilitating
+efficient management of billing operations.
+
+¢ Implemented user-friendly interfaces and common modules, resulting in an 85%
+increase in user satisfaction and efficiency.
+
+¢ Collaborated with team members to deploy and maintain the system in a live
+environment, ensuring reliability and performance.
+
+e Enhanced security features and implemented data validation mechanisms, resulting
+in a 30% reduction in potential security vulnerabilities.
+
+¢ Utilized Twilio for efficient and reliable message communication within the platform,
+ensuring timely notifications and updates.
+
+@ https://demo-billing.onrender.com/##/
+
