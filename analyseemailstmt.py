@@ -145,7 +145,7 @@ def train_and_evaluate_model():
     )
     
     score = evaluator(model)
-    print(f"Model Performance: {score*100:.2f}%")
+    print(f"Model Performance: {score:.2f}%")
     
     return model
 
