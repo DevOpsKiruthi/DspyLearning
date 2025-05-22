@@ -1,0 +1,21 @@
+{
+  "name": "Santhiya Ravi",
+  "selected": false,
+  "not_selected": true,
+  "ai_review": {
+    "strengths": [
+      "Strong experience in web development using Angular, Node.js, and MongoDB.",
+      "Proven ability to develop scalable and user-friendly applications.",
+      "Experience in integrating APIs and conducting code reviews.",
+      "Good understanding of Agile methodologies and RESTful APIs."
+    ],
+    "weaknesses": [
+      "No mention of C++ development experience, which is a core requirement for the role.",
+      "Lacks experience with Qt, which is listed as an added advantage in the job description.",
+      "No evidence of experience with debugging, memory analysis, or profiling tools.",
+      "Skill set is focused on web development rather than the required C++ application development."
+    ],
+    "fit_score": 40,
+    "comments": "Santhiya Ravi has a strong background in web development but lacks the required expertise in C++ development, Qt, and related tools for this role. While her experience is impressive in other domains, it does not align with the specific requirements of this position."
+  }
+}

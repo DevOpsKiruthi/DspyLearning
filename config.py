@@ -1,12 +1,18 @@
 import dspy
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 # Configure Inference LLM
 azure_llm = dspy.LM(
-    "azure/gpt-4o",
-    api_base="https://rkiru-m8o4hmr4-swedencentral.openai.azure.com/",
-    api_version="2024-05-01-preview",
-    api_key="BuNHnTKkDXHtUCye4Q4TrRsxNiX45j48NzmtDdwLOClBcAhvOBIkJQQJ99BCACfhMk5XJ3w3AAAAACOGbPCh",
+    os.getenv("AZURE_OPENAI_MODEL"),
+    api_base=os.getenv("AZURE_BASE_URL"),
+    api_version=os.getenv("AZURE_OPENAI_VERSION"),
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
     temperature=0.1,
     max_tokens=4000,
-)
+    azure=True  # This is crucial for Azure OpenAI
 
+)
+print("AZURE_OPENAI_MODEL:", os.getenv("AZURE_OPENAI_MODEL"))
 print(azure_llm("hello, whos this"))

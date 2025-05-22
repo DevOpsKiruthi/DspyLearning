@@ -1,0 +1,21 @@
+{
+  "name": "Not Provided",
+  "selected": false,
+  "not_selected": true,
+  "ai_review": {
+    "strengths": [
+      "Extensive experience in cloud architecture and security.",
+      "Proficiency in AWS and GCP cloud platforms.",
+      "Strong skills in Kubernetes, Terraform, and CI/CD pipelines.",
+      "Experience in designing secure infrastructure and cloud migration."
+    ],
+    "weaknesses": [
+      "No mention of experience with Angular or Node.js.",
+      "Lack of web application development experience.",
+      "No evidence of database development or maintenance skills.",
+      "Does not meet the job's core requirements for frontend and backend development."
+    ],
+    "fit_score": 20,
+    "comments": "The candidate has a strong background in cloud architecture and security but lacks the required skills and experience in Angular and Node.js, which are critical for this role. They are not a fit for this position."
+  }
+}
